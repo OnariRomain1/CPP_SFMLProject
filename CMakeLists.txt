@@ -16,7 +16,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(SFML)
 
 add_executable(C-Projects
-    src/main.cpp
+    src/game.cpp
 )
 
 target_link_libraries(
