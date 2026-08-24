@@ -16,12 +16,12 @@ void ProcessInput(sf::RectangleShape& PlayerRect, float deltaTime){
     }
    
 }
-void EnemyCollision(sf::RectangleShape& EnemyRect, sf::RenderWindow& window){
-    sf::Vector2f position = EnemyRect.getPosition();
+void ClamptoWindow(sf::RectangleShape& Rect, sf::RenderWindow& window){
+    sf::Vector2f position = Rect.getPosition();
     sf::Vector2u windowSize = window.getSize();
 
-    float width = EnemyRect.getSize().x;
-    float height = EnemyRect.getSize().y;
+    float width = Rect.getSize().x;
+    float height = Rect.getSize().y;
 
     if (position.x < 0)
     {
@@ -43,22 +43,26 @@ void EnemyCollision(sf::RectangleShape& EnemyRect, sf::RenderWindow& window){
         position.y = windowSize.y - height;
     }
 
-    EnemyRect.setPosition(position);
+    Rect.setPosition(position);
 }
 void ProcessEnemyInput(sf::RectangleShape& EnemyRect, sf::Vector2f direction, float deltaTime){
 
-    //The enemy is either moving left or right so first i want my enemy to decide if its directions, 
-    //either +x or - x 
-    //Then i want to move in the direction. 
-    //but i also want to take in consideration the player position so that it feels like the enemy is competing with the player.
-    
-  
-    EnemyRect.move(sf::Vector2f(1 * deltaTime * 200, 0.0f));
+    float speed = 100.0f; // pixels per second
+    float xOffset = 10.0f;
+     if (direction.x < 0)
+    {
+        EnemyRect.move({(-speed - xOffset) * deltaTime, 0.0f});
+    }
+    else if (direction.x > 0)
+    {
+        EnemyRect.move({(speed + xOffset) * deltaTime, 0.0f});
+    }
    
 }
 
 void gameLoop(){
     sf::Clock clock;
+    sf::Clock gameClock;
     sf::RectangleShape PlayerRect(
     sf::Vector2f(100.0f, 50.0f));
     PlayerRect.setFillColor(sf::Color::Green);
@@ -84,6 +88,7 @@ void gameLoop(){
     while (window.isOpen())
     {
         float deltaTime = clock.restart().asSeconds();
+       
         while (const std::optional event = window.pollEvent())
         {
             if (
@@ -99,14 +104,16 @@ void gameLoop(){
             }
         }
 
-
+        window.clear();
         ProcessInput(PlayerRect, deltaTime);
         ProcessEnemyInput(EnemyRect, PlayerRect.getPosition() - EnemyRect.getPosition(), deltaTime); 
-        EnemyCollision(EnemyRect, window);
+        ClamptoWindow(EnemyRect, window);
+        text.setString("timer: " + std::to_string(static_cast<int>(gameClock.getElapsedTime().asSeconds())));
         window.draw(PlayerRect);
         window.draw(EnemyRect);    
         window.draw(ball);
         window.draw(text);
+
         window.display();
 
     }
