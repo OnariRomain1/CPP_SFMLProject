@@ -53,6 +53,9 @@ add_executable(main
 add_executable(primitives
     src/Primitives.cpp
 )
+add_executable(PaddleGame
+    src/PaddleGame.cpp
+)
 target_link_libraries(primitives
     PRIVATE
     SFML::Graphics
@@ -61,6 +64,15 @@ target_link_libraries(primitives
     OpenGL::GL
     glad_gl_core_33
 )
+target_link_libraries(PaddleGame
+    PRIVATE
+    SFML::Graphics
+    SFML::Window
+    SFML::System
+    OpenGL::GL
+    glad_gl_core_33
+)
+
 
 target_link_libraries(main
     PRIVATE
