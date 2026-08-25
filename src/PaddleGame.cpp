@@ -35,7 +35,7 @@ void ClamptoWindow(sf::RectangleShape& Rect, sf::RenderWindow& window){
 
     if (position.x + width > windowSize.x)
     {
-        position.x = windowSize.x - width;
+        position.x = windowSize.x  - width;
     }
 
     if (position.y + height > windowSize.y)
@@ -60,6 +60,40 @@ void ProcessEnemyInput(sf::RectangleShape& EnemyRect, sf::Vector2f direction, fl
    
 }
 
+
+
+bool ballCollision(sf::CircleShape& ball, sf::RectangleShape& paddle){
+    return ball.getGlobalBounds()
+        .findIntersection(paddle.getGlobalBounds())
+        .has_value();
+
+}
+
+void CircleMovement(sf::CircleShape& circle, bool collided, float deltaTime){
+    float speed = 50.0f;
+    if (collided){
+        if (circle.getPosition().y > 0){
+            circle.move({0, -circle.getPosition().y * speed *deltaTime});
+        }
+      /* if (circle.getPosition().y > 0){
+            circle.move({0, circle.getPosition().y * speed *deltaTime});
+        } */ 
+    }
+    if (!collided){
+        circle.move({ 0, speed * deltaTime });
+     }
+    }
+void CircleMovement(sf::CircleShape& circle,sf::Vector2f direction, bool collided, float deltaTime){
+    float speed = 50.0f;
+    if (!collided){
+        circle.move({ 0, speed * deltaTime });
+     }else{
+        circle.move(direction);
+     }
+}
+
+
+
 void gameLoop(){
     sf::Clock clock;
     sf::Clock gameClock;
@@ -77,12 +111,13 @@ void gameLoop(){
     ball.setFillColor(sf::Color::Blue);
     ball.setPosition({350.0f, 300.0f});
     const sf::Font font("src/Fonts/Vampire Wars Italic.ttf");
-        
+    bool ballCollided = false;
+    bool EnemyCollision = false;
     sf::Text text(font,"timer: ");
     text.setCharacterSize(30);
     text.setFillColor(sf::Color::White);
     text.setPosition({10.0f, 10.0f});
-
+    
     sf::RenderWindow window(sf::VideoMode({800, 600}), "Paddle Game");
      window.setFramerateLimit(60);
     while (window.isOpen())
@@ -107,7 +142,14 @@ void gameLoop(){
         window.clear();
         ProcessInput(PlayerRect, deltaTime);
         ProcessEnemyInput(EnemyRect, PlayerRect.getPosition() - EnemyRect.getPosition(), deltaTime); 
+       
         ClamptoWindow(EnemyRect, window);
+        ClamptoWindow(PlayerRect, window);
+        
+        CircleMovement(ball, ballCollided, deltaTime);
+        ballCollided = ballCollision(ball,PlayerRect);
+
+
         text.setString("timer: " + std::to_string(static_cast<int>(gameClock.getElapsedTime().asSeconds())));
         window.draw(PlayerRect);
         window.draw(EnemyRect);    

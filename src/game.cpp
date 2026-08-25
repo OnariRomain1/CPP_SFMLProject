@@ -202,6 +202,8 @@ sf::Vertex LineVertices[]{
          window.draw(Bluevertices, 6, sf::PrimitiveType::Triangles);
          window.draw(LineVertices, 6, sf::PrimitiveType::Lines);
         window.draw(circle);
+        // define a translation transform
+
         window.draw(circleCopy);
         
        
