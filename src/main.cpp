@@ -99,7 +99,7 @@ void display(UserManager& userManager){
 int main(){
 
 
-   /*
+   
     UserManager userManager;
     display(userManager);
     string confirmation;
@@ -111,26 +111,8 @@ int main(){
     }else{
         display(userManager);
     }
-    return 0;*/
-     sf::RenderWindow window(
-        sf::VideoMode({800, 600}),
-        "My First SFML Window"
-    );
-
-    while (window.isOpen())
-    {
-        while (const std::optional event = window.pollEvent())
-        {
-            if (event->is<sf::Event::Closed>())
-            {
-                window.close();
-            }
-        }
-
-        window.clear();
-        window.display();
-    }
-
     return 0;
+   
+
 
 }
