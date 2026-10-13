@@ -5,6 +5,7 @@
 #include <cmath>
 #include <optional>
 #include <iostream>
+#include "stb_image.h"
 
 int main()
 {
@@ -16,13 +17,15 @@ int main()
         return -1;
     }
 
-    float vertices[] = {
-        0.5f, 0.5f, 0.0f, // top right
-        0.5f, -0.5f, 0.0f, // bottom right
-        -0.5f, -0.5f, 0.0f, // bottom left
-        -0.5f, 0.5f, 0.0f  // top left
-        
-    };
+    
+      float vertices[] = {
+// positions // colors // texture coords
+0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, // top right
+0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // bottom right
+-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom left
+-0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f // top left
+};
+    
     unsigned int indices[] = { // note that we start from 0!
         0, 1, 3, // first triangle
         1, 2, 3 // second triangle
@@ -49,12 +52,48 @@ int main()
     
     
     Shader ourShader("src/triangleShader","src/FragmentShader");
+  
+    unsigned int texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    int width, height, nrChannels;
+    stbi_set_flip_vertically_on_load(true);
+    unsigned char *data = stbi_load("src/Sprites/ODG24R0.jpg", &width, &height,
+    &nrChannels, 0);
     
+    if (data)
+        {
 
-    
-    // the specification of the vertex data to OpenGL
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float),(void*)0);
+    GLenum format = nrChannels == 4 ? GL_RGBA : GL_RGB;
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, format,
+            GL_UNSIGNED_BYTE, data);
+            glGenerateMipmap(GL_TEXTURE_2D);
+        }
+            else
+        {
+            std::cout << "Failed to load texture" << std::endl;
+        }
+
+    stbi_image_free(data);
+        
+    // Position
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
+                        8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+
+    // Color
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
+                        8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    // Texture coordinates
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
+                        8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
     
     sf::Clock gameClock;
     while (window.isOpen())
@@ -95,8 +134,8 @@ int main()
         1.0f
     );
         
+       glBindTexture(GL_TEXTURE_2D, texture);
         glBindVertexArray(VAO);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         //WireFrame mode
        // glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
